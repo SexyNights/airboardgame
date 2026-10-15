@@ -365,5 +365,12 @@
   "Rotate board": "Rotate board",
   "Center on items": "Center on items",
   "Hold items": "Hold items",
-  "Whether we can place items on it. When an item is placed, moving the current item one also moves the placed items.": "Whether we can place items on it. When an item is placed, moving the current item one also moves the placed items."
+  "Whether we can place items on it. When an item is placed, moving the current item one also moves the placed items.": "Whether we can place items on it. When an item is placed, moving the current item one also moves the placed items.",
+  "Air Board Game": "Air Board Game",
+  "ABG": "ABG",
+  "aboutFork": "<0>This site is an unofficial version of <1>AirBoardGame</1> by Jérémie Pardou and contributors, translated into Japanese by volunteers under the MIT License and renamed. It is not affiliated with the original author. Please send questions or bug reports about this version to the administrator of this server, not to the original author. The source code of this version is available on <3>GitHub</3>.</0>",
+  "Japanese": "Japanese",
+  "ja": "JP",
+  "{{duration}} mins": "{{duration}} mins",
+  "Age {{age}}+": "age {{age}}+"
 }

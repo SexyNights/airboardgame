@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import { Trans } from "react-i18next";
 
 import Modal from "../ui/Modal";
+import { SOURCE_URL } from "../utils/settings";
+
+const UPSTREAM_URL = "https://github.com/jrmi/airboardgame";
 
 const AboutModal = ({ show, setShow }) => {
   const { t } = useTranslation();
@@ -25,31 +28,12 @@ const AboutModal = ({ show, setShow }) => {
         </div>
       }
     >
-      <Trans i18nKey="about">
+      {/* Fork notice instead of the upstream text, which names the original
+          site's hosting and contact address. */}
+      <Trans i18nKey="aboutFork">
         <p>
-          Air Board Game is a plateform designed to play any board games with
-          your friends online. For more information or to access source code
-          visit <a href="https://github.com/jrmi/airboardgame">Github</a>.
+          This site is an unofficial version of <a href={UPSTREAM_URL} target="_blank" rel="noreferrer">AirBoardGame</a> by Jérémie Pardou and contributors, translated into Japanese by volunteers under the MIT License and renamed. It is not affiliated with the original author. Please send questions or bug reports about this version to the administrator of this server, not to the original author. The source code of this version is available on <a href={SOURCE_URL} target="_blank" rel="noreferrer">GitHub</a>.
         </p>
-        <h3>Legal mentions</h3>
-        <p>
-          This site is hosted by Netlify (San Franscico, US) and OVH (2, rue
-          Kellermann, 59100 Roubaix)
-        </p>
-        <h3>Abuse report</h3>
-        <p>
-          To report abuse, please email at abu
-          <span style={{ display: "none" }}>anti-span</span>
-          se-report@airboardgame.com
-        </p>
-        <h3>RGPD</h3>
-        <p>
-          No personnal data are collected. When you use your email to login,
-          this information is lost and not used for anything else than sending
-          you an authentication link.
-        </p>
-        <h3>Credits</h3>
-        <p>Thanks to everybody !</p>
       </Trans>
     </Modal>
   );

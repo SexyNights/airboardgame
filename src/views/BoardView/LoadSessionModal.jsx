@@ -12,7 +12,7 @@ import LoadData from "./LoadData";
 
 const LoadSessionModal = ({ show, setShow }) => {
   const { t } = useTranslation();
-  const { setSession, sessionId } = useSession();
+  const { setSession, sessionId, saveSession } = useSession();
   const [loading, setLoading] = React.useState();
   const [error, setError] = React.useState(false);
   const [fileCount, setFileCount] = React.useState(0);
@@ -37,6 +37,10 @@ const LoadSessionModal = ({ show, setShow }) => {
       const itemMediaUploader = new ItemMediaUploader(onFile);
 
       try {
+        // Media uploads require the session to exist on the server. A fresh
+        // session is only auto-saved after its first change, so save it now.
+        await saveSession(true);
+
         game.items = await Promise.all(
           game.items.map((item) => itemMediaUploader.upload(item))
         );
@@ -63,7 +67,7 @@ const LoadSessionModal = ({ show, setShow }) => {
         setLoading(false);
       }
     },
-    [sessionId, setSession, setShow]
+    [saveSession, sessionId, setSession, setShow]
   );
 
   React.useEffect(() => {

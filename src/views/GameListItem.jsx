@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { deleteGame, getBestTranslationFromConfig } from "../utils/api";
+import { copyToClipboard } from "../utils";
 import { confirmAlert } from "react-confirm-alert";
 import { toast } from "react-toastify";
 import { useMutation, useQueryClient } from "react-query";
@@ -224,7 +225,7 @@ const GameListItem = ({
       e.stopPropagation();
       e.preventDefault();
 
-      await navigator.clipboard.writeText(getGameUrl(id));
+      await copyToClipboard(getGameUrl(id));
       toast.info(t("Url copied to clipboard!"), { autoClose: 1000 });
     },
     [id, t]
@@ -380,8 +381,10 @@ const GameListItem = ({
               })}
           </span>
         )}
-        {durationDisplay && <span>{durationDisplay} mins</span>}
-        {minAge && <span>age {minAge}+</span>}
+        {durationDisplay && (
+          <span>{t("{{duration}} mins", { duration: durationDisplay })}</span>
+        )}
+        {minAge && <span>{t("Age {{age}}+", { age: minAge })}</span>}
         {materialLanguageDisplay && <span>{materialLanguageDisplay}</span>}
       </div>
 

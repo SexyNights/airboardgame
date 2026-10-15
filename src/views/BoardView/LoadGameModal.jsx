@@ -13,7 +13,7 @@ import LoadData from "./LoadData";
 
 const LoadGameModal = ({ show, setShow }) => {
   const { t } = useTranslation();
-  const { setGame, gameId } = useGame();
+  const { setGame, gameId, saveGame } = useGame();
   const [loading, setLoading] = React.useState();
   const [error, setError] = React.useState(false);
   const [fileCount, setFileCount] = React.useState(0);
@@ -33,6 +33,10 @@ const LoadGameModal = ({ show, setShow }) => {
       const itemMediaUploader = new ItemMediaUploader(onFile);
 
       try {
+        // Media uploads require the game to exist on the server; a new game
+        // has never been saved yet, so save it first.
+        await saveGame();
+
         game.items = await Promise.all(
           game.items.map((item) => itemMediaUploader.upload(item))
         );
@@ -59,7 +63,7 @@ const LoadGameModal = ({ show, setShow }) => {
         setLoading(false);
       }
     },
-    [gameId, setGame, setShow]
+    [gameId, saveGame, setGame, setShow]
   );
 
   React.useEffect(() => {

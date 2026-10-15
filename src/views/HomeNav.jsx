@@ -1,10 +1,11 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
 import Account from "./Account";
 import useAuth from "../hooks/useAuth";
+import { HIDE_LOGIN, SOURCE_URL } from "../utils/settings";
 
 import Brand from "./Brand";
 import { FiGithub } from "react-icons/fi";
@@ -50,6 +51,12 @@ const HomeNav = () => {
   const cookieConsent = true;
 
   const { isAuthenticated } = useAuth();
+  const { pathname } = useLocation();
+
+  // With VITE_HIDE_LOGIN=1 the login button only appears on the hidden
+  // /members page; once logged in, the logout button is always shown.
+  const showAccount =
+    !HIDE_LOGIN || isAuthenticated || pathname.startsWith("/members");
 
   return (
     <>
@@ -65,10 +72,12 @@ const HomeNav = () => {
             </NavLink>
           </>
         )}
-        <Account className="login" disabled={!cookieConsent} />
+        {showAccount && (
+          <Account className="login" disabled={!cookieConsent} />
+        )}
         <a
           className="icon button"
-          href="https://github.com/jrmi/airboardgame"
+          href={SOURCE_URL}
           target="_blank"
           rel="noreferrer"
         >

@@ -222,6 +222,7 @@ const BoardConfigForm = () => {
           <option value="Multi-lang">🌍 {t("Multi-lang")}</option>
           <option value="en">🇬🇧 {t("English")}</option>
           <option value="fr">🇫🇷 {t("French")}</option>
+          <option value="ja">🇯🇵 {t("Japanese")}</option>
         </Field>
       </Label>
       <fieldset style={{ marginBottom: "2em", paddingBottom: "1em" }}>
@@ -238,6 +239,7 @@ const BoardConfigForm = () => {
             <option />
             <option value="en">🇬🇧 {t("English")}</option>
             <option value="fr">🇫🇷 {t("French")}</option>
+            <option value="ja">🇯🇵 {t("Japanese")}</option>
           </Field>
         </Label>
 
@@ -313,6 +315,7 @@ const BoardConfigForm = () => {
                   <option />
                   <option value="en">🇬🇧 {t("English")}</option>
                   <option value="fr">🇫🇷 {t("French")}</option>
+                  <option value="ja">🇯🇵 {t("Japanese")}</option>
                 </Field>
               </Label>
 

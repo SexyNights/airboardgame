@@ -1,0 +1,21 @@
+# Public deployment override (e.g. DXP2800 Debian VM) via Cloudflare Tunnel.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.public.yml up -d --build
+#
+# or put COMPOSE_FILE=docker-compose.yml:docker-compose.public.yml in ./.env
+# and use plain `docker compose ...`. See docker/README.ja.md.
+services:
+  frontend:
+    # Port 8262 only on the VM itself (for local checks); the public site is
+    # reached through cloudflared on the Docker network (frontend:80).
+    ports: !override
+      - "127.0.0.1:${ABG_PORT:-8262}:80"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    # TUNNEL_TOKEN=... (kept out of .env.docker so the backend never sees it)
+    env_file: .env.tunnel
+    depends_on:
+      - frontend

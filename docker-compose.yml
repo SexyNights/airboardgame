@@ -1,0 +1,34 @@
+services:
+  backend:
+    image: abg/backend:latest
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 4050
+      STORE_BACKEND: nedb
+      NEDB_BACKEND_DIRNAME: /data/db
+      FILE_STORAGE: disk
+      DISK_DESTINATION: /data/media
+      MAX_UPLOAD_MB: 20
+    volumes:
+      - ${ABG_DATA_DIR:-./data}:/data
+
+  frontend:
+    image: abg/frontend:latest
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        VITE_HIDE_LOGIN: ${ABG_HIDE_LOGIN:-1}
+        VITE_HIDE_LANGUAGE_FILTER: ${ABG_HIDE_LANGUAGE_FILTER:-1}
+        VITE_HIDE_ABOUT: ${ABG_HIDE_ABOUT:-0}
+        VITE_HIDE_VASSAL_LINK: ${ABG_HIDE_VASSAL_LINK:-1}
+        VITE_HIDE_HERO_IMAGE: ${ABG_HIDE_HERO_IMAGE:-1}
+        VITE_HIDE_GAME_FILTERS: ${ABG_HIDE_GAME_FILTERS:-1}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${ABG_PORT:-8262}:80"

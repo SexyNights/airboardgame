@@ -95,6 +95,13 @@ export async function hashBlob(blob) {
   // Read the blob as an ArrayBuffer
   const blobBuffer = await readBlobAsArrayBuffer(blob);
 
+  // crypto.subtle only exists in secure contexts (HTTPS or localhost). The
+  // hash is only used to de-duplicate files in exports, so fall back to a
+  // fast non-cryptographic hash on plain-HTTP setups.
+  if (!globalThis.crypto?.subtle) {
+    return fallbackHash(new Uint8Array(blobBuffer));
+  }
+
   // Use the SubtleCrypto API to hash the content
   const hashBuffer = await crypto.subtle.digest("SHA-256", blobBuffer);
 
@@ -105,6 +112,22 @@ export async function hashBlob(blob) {
     .join("");
 
   return hashHex;
+}
+
+// cyrb53-style 2x32-bit hash over the bytes, prefixed with the byte length.
+function fallbackHash(bytes) {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < bytes.length; i++) {
+    h1 = Math.imul(h1 ^ bytes[i], 2654435761);
+    h2 = Math.imul(h2 ^ bytes[i], 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  const hex = (n) => (n >>> 0).toString(16).padStart(8, "0");
+  return `${bytes.length.toString(16)}-${hex(h2)}${hex(h1)}`;
 }
 
 function readBlobAsArrayBuffer(blob) {

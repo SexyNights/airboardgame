@@ -365,5 +365,12 @@
   "Rotate board": "Tourner le plateau",
   "Center on items": "Centrer sur les éléments",
   "Hold items": "Porte les autres éléments",
-  "Whether we can place items on it. When an item is placed, moving the current item one also moves the placed items.": "Indique si l'on peut placer des éléments dessus. Quand un élément est placé, il se déplace avec cet élément."
+  "Whether we can place items on it. When an item is placed, moving the current item one also moves the placed items.": "Indique si l'on peut placer des éléments dessus. Quand un élément est placé, il se déplace avec cet élément.",
+  "Air Board Game": "Air Board Game",
+  "ABG": "ABG",
+  "aboutFork": "<0>Ce site est une version non officielle d'<1>AirBoardGame</1> de Jérémie Pardou et ses contributeurs, traduite en japonais par des bénévoles dans le cadre de la licence MIT et renommée. Il n'est pas affilié à l'auteur original. Merci d'adresser vos questions et rapports de bugs concernant cette version à l'administrateur de ce serveur, et non à l'auteur original. Le code source de cette version est disponible sur <3>GitHub</3>.</0>",
+  "Japanese": "Japonais",
+  "ja": "JP",
+  "{{duration}} mins": "{{duration}} mins",
+  "Age {{age}}+": "âge {{age}}+"
 }

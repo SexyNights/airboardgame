@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { toast } from "react-toastify";
 
 import Modal from "../../ui/Modal";
+import { copyToClipboard } from "../../utils";
 
 import GameInformation from "./GameInformation";
 import { FiCopy } from "react-icons/fi";
@@ -35,7 +36,7 @@ const WelcomeModal = ({ show, setShow, welcome = true }) => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await copyToClipboard(window.location.href);
       toast.info(t("Url copied to clipboard!"), { autoClose: 1000 });
     } catch (e) {
       toast.info(t("You don't have the permissions to copy the Url"), {

@@ -22,7 +22,8 @@ import { SITE_PREFIX } from "./config.js";
 const json = express.json({ limit: "20mb" });
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 100 * 1024 * 1024 },
+  // MAX_UPLOAD_MB lowers the per-file upload limit (default 100 MB).
+  limits: { fileSize: (Number(process.env.MAX_UPLOAD_MB) || 100) * 1024 * 1024 },
 });
 const site = SITE_PREFIX;
 const send = (response, value) => response.json(value);

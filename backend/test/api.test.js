@@ -353,10 +353,21 @@ describe("services and recurring cleanup", () => {
     });
     await sessions.insertOne({ _id: "missing" });
     await sessions.insertOne({ _id: "new", timestamp: Date.now() });
+    await sessions.insertOne({ _id: "..", timestamp: 0 });
+    const media = process.env.DISK_DESTINATION;
+    await fs.mkdir(path.join(media, "old"), { recursive: true });
+    await fs.writeFile(path.join(media, "old", "a.png"), "x");
+    await fs.mkdir(path.join(media, "new"), { recursive: true });
+    await fs.writeFile(path.join(media, "new", "b.png"), "x");
     await cleanupSessions();
     assert.equal(await sessions.findOne({ _id: "old" }), null);
     assert.equal(await sessions.findOne({ _id: "missing" }), null);
     assert.equal((await sessions.findOne({ _id: "new" }))._id, "new");
+    // media of removed sessions is deleted, others are kept, and a
+    // traversal-looking id never deletes outside the media root
+    await assert.rejects(fs.access(path.join(media, "old")));
+    await fs.access(path.join(media, "new", "b.png"));
+    await fs.access(media);
   });
 
   test("media path and filename helpers prevent path traversal", () => {

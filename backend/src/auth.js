@@ -8,14 +8,30 @@ const secret = sessionSecret;
 export const userIdForEmail = (email) =>
   crypto.createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
 
+// Mark the session cookie Secure when the site is served over HTTPS.
+const secureFlag = () =>
+  (process.env.CLIENT_URL || "").startsWith("https://") ? "; Secure" : "";
 export const sessionCookie = (userId) => {
   const value = `${userId}.${crypto.createHmac("sha256", secret()).update(userId).digest("base64url")}`;
-  return `session=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${10 * 24 * 60 * 60}`;
+  return `session=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${10 * 24 * 60 * 60}${secureFlag()}`;
 };
 export const clearSessionCookie =
   "session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
-export const mailFromOrigin = (origin) => `noreply@${new URL(origin).hostname}`;
+export const mailFromOrigin = (origin) =>
+  process.env.EMAIL_FROM || `noreply@${new URL(origin).hostname}`;
+
+// Optional comma-separated allowlist. Empty/unset = any address may log in.
+export const allowedEmails = () =>
+  (process.env.ABG_ALLOWED_EMAILS || "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+export const isEmailAllowed = (email) => {
+  const allowed = allowedEmails();
+  return !allowed.length || allowed.includes(email.trim().toLowerCase());
+};
 const siteName = "Airboardgame";
+const jaSiteName = "VirtualBoardGame日本語版";
 const mailTranslations = {
   en: {
     subject: `[${siteName}] Your authentication link`,
@@ -23,6 +39,13 @@ const mailTranslations = {
       `Hello,\n\nHere is the link that allows you to log in ${siteName}:\n\n${url}\n\nPlease click on the link or copy and paste it into your browser.\n\nYours sincerely,\n\n${siteName} team.`,
     html: (url) =>
       `<p>Hello,</p><p>Here is the link that allows you to log in ${siteName}:</p><p><a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p><p>Please click on the link or copy and paste it into your browser.</p><p>Yours sincerely,</p><p>${siteName} team.</p>`,
+  },
+  ja: {
+    subject: `[${jaSiteName}] ログイン用リンク`,
+    text: (url) =>
+      `こんにちは。\n\n${jaSiteName} にログインするためのリンクです:\n\n${url}\n\nリンクをクリックするか、ブラウザに貼り付けて開いてください。リンクの有効期限は15分です。\n\n${jaSiteName}`,
+    html: (url) =>
+      `<p>こんにちは。</p><p>${jaSiteName} にログインするためのリンクです:</p><p><a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p><p>リンクをクリックするか、ブラウザに貼り付けて開いてください。リンクの有効期限は15分です。</p><p>${jaSiteName}</p>`,
   },
   fr: {
     subject: `[${siteName}] Votre lien d'authentification`,
@@ -78,8 +101,19 @@ export const currentUser = (request) => {
     ? userId
     : null;
 };
+// Minimum delay between two login links for the same address.
+const loginRequestInterval = () =>
+  (Number(process.env.ABG_LOGIN_INTERVAL_SECONDS) || 60) * 1000;
+const lastLoginRequest = new Map();
+
 export const requestLogin = async (email, origin, acceptLanguage) => {
+  if (!isEmailAllowed(email))
+    throw new HttpError(403, "This email address is not allowed to log in");
   const userId = userIdForEmail(email);
+  const now = Date.now();
+  if (now - (lastLoginRequest.get(userId) || 0) < loginRequestInterval())
+    throw new HttpError(429, "Please wait before requesting another login link");
+  lastLoginRequest.set(userId, now);
   const token = crypto.randomBytes(24).toString("hex");
   tokens.set(`${userId}:${token}`, Date.now() + 15 * 60 * 1000);
   const link = `${origin}/login/${userId}/${token}`;
@@ -90,7 +124,11 @@ export const requestLogin = async (email, origin, acceptLanguage) => {
     await nodemailer
       .createTransport({
         host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
+        port: Number(process.env.EMAIL_PORT) || 587,
+        // Implicit TLS on 465/2465 (or EMAIL_SECURE=1); STARTTLS otherwise.
+        secure:
+          process.env.EMAIL_SECURE === "1" ||
+          ["465", "2465"].includes(String(process.env.EMAIL_PORT)),
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASSWORD,
@@ -98,7 +136,7 @@ export const requestLogin = async (email, origin, acceptLanguage) => {
       })
       .sendMail({
         from: mailFromOrigin(origin),
-        to: email,
+        to: email.trim(),
         ...mail,
       });
   }

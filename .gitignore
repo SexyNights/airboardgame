@@ -35,3 +35,8 @@ cypress/videos
 archives/
 
 ricochet.json
+
+# Docker deployment
+/data
+.env.docker
+.env.tunnel

@@ -11,6 +11,14 @@ import languageSVG from "../media/images/language.svg";
 import clockSVG from "../media/images/clock.svg";
 
 import { getGames } from "../utils/api";
+import AboutModal from "./AboutModal";
+import {
+  HIDE_ABOUT,
+  HIDE_GAME_FILTERS,
+  HIDE_HERO_IMAGE,
+  HIDE_LANGUAGE_FILTER,
+  HIDE_VASSAL_LINK,
+} from "../utils/settings";
 import { search } from "../utils";
 
 import GameListItem from "./GameListItem";
@@ -21,15 +29,16 @@ const Header = styled.header`
   background-color: var(--bg-color);
   position: relative;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 0.6) 40%,
-      rgba(0, 0, 0, 0.6) 60%,
-      rgba(0, 0, 0, 1) 100%
-    ),
-    100% 50% / contain no-repeat url(/hero.png);
+  background: ${HIDE_HERO_IMAGE
+    ? "#000"
+    : `linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(0, 0, 0, 0.6) 40%,
+        rgba(0, 0, 0, 0.6) 60%,
+        rgba(0, 0, 0, 1) 100%
+      ),
+      100% 50% / contain no-repeat url(/hero.png)`};
 
   padding: 14vh 5%;
   margin-bottom: 20px;
@@ -44,6 +53,16 @@ const Header = styled.header`
     padding: 2px;
     color: var(--font-color2);
     font-size: 1.4vw;
+  }
+  & .about-link {
+    margin: 0.8em 0 0;
+    padding: 2px;
+  }
+  & .about-link button {
+    padding: 0;
+    color: var(--font-color2);
+    font-size: 1.2vw;
+    text-decoration: underline;
   }
 
   @media screen and (max-width: 1024px) {
@@ -60,11 +79,25 @@ const Header = styled.header`
       background-color: #00000088;
       font-size: 16px;
     }
+    & .about-link button {
+      font-size: 14px;
+    }
   }
 
   @media screen and (max-width: 640px) {
+    /* Show the tagline and About link on phones too (hidden upstream) */
     & {
-      display: none;
+      padding: 1em 5%;
+      margin-bottom: 0;
+    }
+    & .baseline {
+      font-size: 24px;
+    }
+    & .subbaseline {
+      font-size: 14px;
+    }
+    & .about-link {
+      margin: 0.5em 0 0;
     }
   }
 `;
@@ -185,13 +218,14 @@ const hasAllowedMaterialLanguage = (filterCriteria, game) => {
 
 const GameListView = () => {
   const { t } = useTranslation();
+  const [showAboutModal, setShowAboutModal] = React.useState(false);
   const NULL_SEARCH_TERM = "";
 
   const [filterCriteria, setFilterCriteria] = React.useState({
     searchTerm: NULL_SEARCH_TERM,
     nbOfPlayers: [1, 9],
     durations: [15, 90],
-    languages: ["fr", "en"],
+    languages: ["fr", "en", "ja"],
   });
 
   const { isLoading, data: gameList } = useQuery("games", async () =>
@@ -216,14 +250,19 @@ const GameListView = () => {
     if (gameList) {
       return gameList.filter(
         (game) =>
-          (filterCriteria.searchTerm === NULL_SEARCH_TERM ||
-            search(filterCriteria.searchTerm, game.board.defaultName)) &&
-          hasRequestedValues(
-            filterCriteria.nbOfPlayers,
-            game.board.playerCount
-          ) &&
-          hasRequestedValues(filterCriteria.durations, game.board.duration) &&
-          hasAllowedMaterialLanguage(filterCriteria, game)
+          // Criteria whose controls are hidden must not filter anything out.
+          (HIDE_GAME_FILTERS ||
+            ((filterCriteria.searchTerm === NULL_SEARCH_TERM ||
+              search(filterCriteria.searchTerm, game.board.defaultName)) &&
+              hasRequestedValues(
+                filterCriteria.nbOfPlayers,
+                game.board.playerCount
+              ) &&
+              hasRequestedValues(
+                filterCriteria.durations,
+                game.board.duration
+              ))) &&
+          (HIDE_LANGUAGE_FILTER || hasAllowedMaterialLanguage(filterCriteria, game))
       );
     }
     return [];
@@ -281,7 +320,20 @@ const GameListView = () => {
             friends.
           </p>
         </Trans>
+        {!HIDE_ABOUT && (
+          <p className="about-link">
+            <button
+              className="button clear"
+              onClick={() => setShowAboutModal(true)}
+            >
+              {t("About")}
+            </button>
+          </p>
+        )}
       </Header>
+      {!HIDE_ABOUT && (
+        <AboutModal show={showAboutModal} setShow={setShowAboutModal} />
+      )}
       <Content>
         <Filter>
           <h2 className="incentive">{t("Start a game now")}</h2>
@@ -289,73 +341,85 @@ const GameListView = () => {
             {t("Or")}{" "}
             <NavLink to={"/room/"}>{t("start a multi room session")}</NavLink>
           </h3>
-          <h3 className="subincentive">
-            {t("Or")}{" "}
-            <NavLink to={"/playvassalgame/"}>
-              {t("Load a Vassal module")}
-            </NavLink>
-          </h3>
-          <input
-            type="search"
-            id="game-search"
-            name="game-search"
-            aria-label={t("Search for a game")}
-            placeholder={t("Search for a game")}
-            value={filterCriteria.searchTerm}
-            onChange={onChangeSearchTerm}
-          />
-          <StyledGameFilters>
-            <li className="player-filter">
-              <span className="filter-title">{t("Number of players")}</span>
-              <SliderRange
-                defaultValue={[1, 9]}
-                min={1}
-                max={9}
-                value={filterCriteria.nbOfPlayers}
-                step={1}
-                onChange={onChangeNbOfPlayersSlider}
-              />
-            </li>
-            <li className="duration-filter">
-              <span className="filter-title">{t("Duration (mins)")}</span>
-              <SliderRange
-                defaultValue={[15, 90]}
-                min={15}
-                max={90}
-                value={filterCriteria.durations}
-                step={15}
-                onChange={onChangeDurationSlider}
-              />
-            </li>
-            <li className="small-filter language-filter">
-              <span className="filter-title">{t("Language")}</span>
-              <div>
-                <ul>
-                  <li>
-                    <input
-                      type="checkbox"
-                      id="french-filter"
-                      name="french-filter"
-                      defaultChecked={filterCriteria.languages.includes("fr")}
-                      onChange={() => onChangelanguageFilter("fr")}
+          {!HIDE_VASSAL_LINK && (
+            <h3 className="subincentive">
+              {t("Or")}{" "}
+              <NavLink to={"/playvassalgame/"}>
+                {t("Load a Vassal module")}
+              </NavLink>
+            </h3>
+          )}
+          {!HIDE_GAME_FILTERS && (
+            <input
+              type="search"
+              id="game-search"
+              name="game-search"
+              aria-label={t("Search for a game")}
+              placeholder={t("Search for a game")}
+              value={filterCriteria.searchTerm}
+              onChange={onChangeSearchTerm}
+            />
+          )}
+          {!(HIDE_GAME_FILTERS && HIDE_LANGUAGE_FILTER) && (
+            <StyledGameFilters>
+              {!HIDE_GAME_FILTERS && (
+                <>
+                  <li className="player-filter">
+                    <span className="filter-title">{t("Number of players")}</span>
+                    <SliderRange
+                      defaultValue={[1, 9]}
+                      min={1}
+                      max={9}
+                      value={filterCriteria.nbOfPlayers}
+                      step={1}
+                      onChange={onChangeNbOfPlayersSlider}
                     />
-                    <label htmlFor="french-filter">{t("French")}</label>
                   </li>
-                  <li>
-                    <input
-                      type="checkbox"
-                      id="english-filter"
-                      name="english-filter"
-                      defaultChecked={filterCriteria.languages.includes("en")}
-                      onChange={() => onChangelanguageFilter("en")}
-                      data-lang="en"
+                  <li className="duration-filter">
+                    <span className="filter-title">{t("Duration (mins)")}</span>
+                    <SliderRange
+                      defaultValue={[15, 90]}
+                      min={15}
+                      max={90}
+                      value={filterCriteria.durations}
+                      step={15}
+                      onChange={onChangeDurationSlider}
                     />
-                    <label htmlFor="english-filter">{t("English")}</label>
                   </li>
-                </ul>
-              </div>
-            </li>
-          </StyledGameFilters>
+                </>
+              )}
+              {!HIDE_LANGUAGE_FILTER && (
+                <li className="small-filter language-filter">
+                  <span className="filter-title">{t("Language")}</span>
+                  <div>
+                    <ul>
+                      <li>
+                        <input
+                          type="checkbox"
+                          id="french-filter"
+                          name="french-filter"
+                          defaultChecked={filterCriteria.languages.includes("fr")}
+                          onChange={() => onChangelanguageFilter("fr")}
+                        />
+                        <label htmlFor="french-filter">{t("French")}</label>
+                      </li>
+                      <li>
+                        <input
+                          type="checkbox"
+                          id="english-filter"
+                          name="english-filter"
+                          defaultChecked={filterCriteria.languages.includes("en")}
+                          onChange={() => onChangelanguageFilter("en")}
+                          data-lang="en"
+                        />
+                        <label htmlFor="english-filter">{t("English")}</label>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+              )}
+            </StyledGameFilters>
+          )}
           <StyledGameResultNumber>
             {t("games-available", { nbOfGames: `${filteredGameList.length}` })}
           </StyledGameResultNumber>
