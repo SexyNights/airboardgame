@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Modal from "../../ui/Modal";
 
 import GameInformation from "./GameInformation";
+import { SOURCE_URL } from "../../utils/settings";
 
 const Kbd = styled.kbd`
   background-color: var(--color-midGrey);
@@ -78,10 +79,7 @@ const InfoModal = ({ show, setShow }) => {
         <Trans i18nKey="moreInformation">
           <p>
             For more information, visit{" "}
-            <a href="https://github.com/jrmi/airboardgame/">
-              github repository
-            </a>
-            .
+            <a href={SOURCE_URL}>github repository</a>.
           </p>
         </Trans>
       </section>

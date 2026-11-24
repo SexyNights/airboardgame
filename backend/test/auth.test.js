@@ -4,6 +4,7 @@ import { clientOrigin } from "../src/app.js";
 import {
   currentUser,
   authenticationMail,
+  isEmailAllowed,
   mailLanguage,
   mailFromOrigin,
   requestLogin,
@@ -85,4 +86,58 @@ test("fake email login token is one-time and creates a valid session cookie", as
   assert.equal(currentUser({ headers: { cookie } }), userId);
   if (previousSecret === undefined) delete process.env.ABG_SECRET;
   else process.env.ABG_SECRET = previousSecret;
+});
+
+test("login mail sender can be configured with EMAIL_FROM", () => {
+  process.env.EMAIL_FROM = "abg@example.net";
+  try {
+    assert.equal(mailFromOrigin("http://192.168.0.3:8080"), "abg@example.net");
+  } finally {
+    delete process.env.EMAIL_FROM;
+  }
+});
+
+test("login mail has a Japanese version", () => {
+  assert.equal(mailLanguage("ja,en-US;q=0.9"), "ja");
+  const mail = authenticationMail("http://example/login/u/t", "ja");
+  assert.match(mail.subject, /ログイン/);
+  assert.match(mail.text, /http:\/\/example\/login\/u\/t/);
+});
+
+test("login can be restricted to an email allowlist", async () => {
+  process.env.ABG_ALLOWED_EMAILS = " Member@Example.com ,other@example.com";
+  process.env.EMAIL_HOST = "fake";
+  try {
+    assert.equal(isEmailAllowed("member@example.com "), true);
+    assert.equal(isEmailAllowed("stranger@example.com"), false);
+    await assert.rejects(
+      requestLogin("stranger@example.com", "http://localhost:8080"),
+      (error) => error.status === 403
+    );
+  } finally {
+    delete process.env.ABG_ALLOWED_EMAILS;
+  }
+  assert.equal(isEmailAllowed("anyone@example.com"), true);
+});
+
+test("session cookie is Secure only when the site uses HTTPS", () => {
+  const previous = process.env.CLIENT_URL;
+  try {
+    process.env.CLIENT_URL = "https://vbg.example";
+    assert.match(sessionCookie("user"), /; Secure$/);
+    process.env.CLIENT_URL = "http://192.168.0.3:8080";
+    assert.doesNotMatch(sessionCookie("user"), /Secure/);
+  } finally {
+    if (previous === undefined) delete process.env.CLIENT_URL;
+    else process.env.CLIENT_URL = previous;
+  }
+});
+
+test("login links are rate limited per address", async () => {
+  process.env.EMAIL_HOST = "fake";
+  await requestLogin("rate@example.com", "http://localhost:8080");
+  await assert.rejects(
+    requestLogin(" RATE@example.com", "http://localhost:8080"),
+    (error) => error.status === 429
+  );
 });

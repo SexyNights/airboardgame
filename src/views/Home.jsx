@@ -50,6 +50,8 @@ const Home = () => {
         <HomeNav />
         <Routes>
           <Route path="games" element={<GameListView />} />
+          {/* Hidden entry point: shows the login button even when VITE_HIDE_LOGIN=1 */}
+          <Route path="members" element={<GameListView />} />
           <Route path="studio" element={<GameStudio />} />
         </Routes>
         <footer>

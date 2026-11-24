@@ -278,9 +278,20 @@ export { mediaDir, safeFilename };
 
 export const cleanupSessions = async () => {
   const cutoff = Date.now() - 60 * 24 * 60 * 60 * 1000;
-  await (
-    await getCollection("session")
-  ).deleteMany({
+  const sessions = await getCollection("session");
+  const query = {
     $or: [{ timestamp: { $exists: false } }, { timestamp: { $lt: cutoff } }],
-  });
+  };
+  const stale = useS3() ? [] : await sessions.find(query).toArray();
+  await sessions.deleteMany(query);
+  // Also remove the media uploaded to the deleted sessions (disk storage).
+  const root = path.resolve(mediaRoot());
+  await Promise.all(
+    stale.map(({ _id }) => {
+      const dir = path.resolve(mediaDir(String(_id)));
+      // Only ever delete a direct child of the media root.
+      if (path.dirname(dir) !== root || dir === root) return null;
+      return fs.rm(dir, { recursive: true, force: true });
+    })
+  );
 };

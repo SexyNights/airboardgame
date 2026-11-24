@@ -26,6 +26,16 @@ export const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
 
 export const SHOW_WELCOME = import.meta.env.VITE_NO_WELCOME !== "1";
 
+// VirtualBoardGame日本語版: show the login button only on the hidden /members
+// page (logged-in users always see the logout button).
+export const HIDE_LOGIN = import.meta.env.VITE_HIDE_LOGIN === "1";
+
+// Source code of this deployment, linked from the header and About dialog.
+export const SOURCE_URL =
+  import.meta.env.VITE_SOURCE_URL ||
+  "https://github.com/SexyNights/airboardgame";
+export const UPSTREAM_URL = "https://github.com/jrmi/airboardgame";
+
 export const GAMELIST_URL =
   import.meta.env.VITE_GAMELIST_URL || "/gamelist.json";
 

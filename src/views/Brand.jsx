@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 const StyledBrand = styled.div`
   position: relative;
@@ -42,15 +43,18 @@ const StyledBrand = styled.div`
   }
 `;
 
-const Brand = () => (
-  <StyledBrand>
-    <h1>
-      <Link to="/">Air Board Game</Link>
-    </h1>
-    <h1 className="short">
-      <Link to="/">ABG</Link>
-    </h1>
-  </StyledBrand>
-);
+const Brand = () => {
+  const { t } = useTranslation();
+  return (
+    <StyledBrand>
+      <h1>
+        <Link to="/">{t("Air Board Game")}</Link>
+      </h1>
+      <h1 className="short">
+        <Link to="/">{t("ABG")}</Link>
+      </h1>
+    </StyledBrand>
+  );
+};
 
 export default Brand;

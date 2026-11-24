@@ -56,4 +56,16 @@ i18n
     detection: {},
   });
 
+// Keep <html lang> and the page title in sync with the UI language
+// (lang helps CJK font selection; the title follows the translated site name).
+const syncDocument = (lng) => {
+  if (lng && typeof document !== "undefined") {
+    document.documentElement.lang = lng;
+    document.title = i18n.t("Air Board Game");
+  }
+};
+i18n.on("languageChanged", syncDocument);
+i18n.on("initialized", () => syncDocument(i18n.resolvedLanguage));
+syncDocument(i18n.resolvedLanguage || i18n.language);
+
 export default i18n;

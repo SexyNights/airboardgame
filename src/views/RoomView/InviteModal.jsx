@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { toast } from "react-toastify";
 
 import Modal from "../../ui/Modal";
+import { copyToClipboard } from "../../utils";
 import { FiCopy } from "react-icons/fi";
 
 const StyledUrl = styled.div`
@@ -32,7 +33,7 @@ const InviteModal = ({ show, setShow, welcome = true }) => {
   const currentUrl = window.location.href;
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(window.location.href);
+    await copyToClipboard(window.location.href);
     toast.info(t("Url copied to clipboard!"), { autoClose: 1000 });
   };
 

@@ -18,6 +18,7 @@ import {
   FiUser,
   FiUsers,
 } from "react-icons/fi";
+import { copyToClipboard } from "../utils";
 
 const Game = styled.li`
   position: relative;
@@ -292,7 +293,7 @@ const GameListItem = ({
       e.stopPropagation();
       e.preventDefault();
 
-      await navigator.clipboard.writeText(getGameUrl(id));
+      await copyToClipboard(getGameUrl(id));
       toast.info(t("Url copied to clipboard!"), { autoClose: 1000 });
     },
     [id, t]

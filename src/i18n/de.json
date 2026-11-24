@@ -405,5 +405,8 @@
   "Select a player": "Spieler auswählen",
   "Cancel": "Abbrechen",
   "Hide for my team / make public": "Für mein Team verbergen / öffentlich machen",
-  "Transfer moderation...": "Moderation übertragen..."
+  "Transfer moderation...": "Moderation übertragen...",
+  "Air Board Game": "Air Board Game",
+  "ABG": "ABG",
+  "aboutFork": "<0>This site is an unofficial version of <1>AirBoardGame</1> by Jérémie Pardou and contributors, renamed and modified by volunteers under the MIT License. It is not affiliated with the original author. Please send questions or bug reports about this version to the administrator of this server, not to the original author. The source code of this version is available on <3>GitHub</3>.</0>"
 }

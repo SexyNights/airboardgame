@@ -1,3 +1,4 @@
 # https://www.robotstxt.org/robotstxt.html
+# Private site: do not crawl or index.
 User-agent: *
-Disallow:
+Disallow: /

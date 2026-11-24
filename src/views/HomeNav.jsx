@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
@@ -7,9 +7,9 @@ import Account from "./Account";
 import useAuth from "../hooks/useAuth";
 import Modal from "../ui/Modal";
 import { SUPPORTED_LANGUAGES } from "../i18n/languages";
+import { HIDE_LOGIN, SOURCE_URL } from "../utils/settings";
 
 import Brand from "./Brand";
-import { FaDiscord } from "react-icons/fa";
 import { FiGithub } from "react-icons/fi";
 
 const Nav = styled.nav`
@@ -112,6 +112,9 @@ const HomeNav = () => {
   const { t, i18n } = useTranslation();
 
   const { isAuthenticated } = useAuth();
+  const { pathname } = useLocation();
+  const showAccount =
+    !HIDE_LOGIN || isAuthenticated || pathname.startsWith("/members");
   const currentLanguage = i18n.resolvedLanguage?.split("-")[0] || "en";
   const currentLanguageOption =
     SUPPORTED_LANGUAGES.find(({ code }) => code === currentLanguage) ||
@@ -137,7 +140,7 @@ const HomeNav = () => {
             </NavLink>
           </>
         )}
-        <Account className="login" />
+        {showAccount && <Account className="login" />}
         <button
           className="language-switch"
           onClick={() => setShowLanguageModal(true)}
@@ -148,26 +151,13 @@ const HomeNav = () => {
         </button>
         <a
           className="icon button"
-          href="https://github.com/jrmi/airboardgame"
+          href={SOURCE_URL}
           target="_blank"
           rel="noreferrer"
         >
           <FiGithub
             alt={t("Github")}
             title={t("Github")}
-            color="#CCCCCC"
-            size="16"
-          />
-        </a>
-        <a
-          className="icon button"
-          href="https://discord.gg/EsZGJ5h6UA"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <FaDiscord
-            alt={t("Discord")}
-            title={t("Discord")}
             color="#CCCCCC"
             size="16"
           />

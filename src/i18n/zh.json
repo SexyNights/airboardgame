@@ -404,5 +404,8 @@
   "Select a player": "选择一名玩家",
   "Cancel": "取消",
   "Hide for my team / make public": "对我的队伍隐藏 / 公开",
-  "Transfer moderation...": "转交主持权..."
+  "Transfer moderation...": "转交主持权...",
+  "Air Board Game": "Air Board Game",
+  "ABG": "ABG",
+  "aboutFork": "<0>This site is an unofficial version of <1>AirBoardGame</1> by Jérémie Pardou and contributors, renamed and modified by volunteers under the MIT License. It is not affiliated with the original author. Please send questions or bug reports about this version to the administrator of this server, not to the original author. The source code of this version is available on <3>GitHub</3>.</0>"
 }

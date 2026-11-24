@@ -404,5 +404,8 @@
   "Select a player": "プレイヤーを選択",
   "Cancel": "キャンセル",
   "Hide for my team / make public": "自分のチームに隠す / 全員に公開",
-  "Transfer moderation...": "モデレーションを引き継ぐ..."
+  "Transfer moderation...": "モデレーションを引き継ぐ...",
+  "Air Board Game": "VirtualBoardGame日本語版",
+  "ABG": "VirtualBoardGame日本語版",
+  "aboutFork": "<0>このサイトは、Jérémie Pardou 氏らによる <1>AirBoardGame</1> を元に有志が MIT License のもとで名称を変更し、改変した非公式版です。原作者とは関係がありません。このサイトについてのご質問や不具合の報告は、原作者ではなくこのサーバーの管理者にお知らせください。このサイトのソースコードは <3>GitHub</3> で公開しています。</0>"
 }
